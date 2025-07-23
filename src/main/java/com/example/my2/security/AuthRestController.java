@@ -1,0 +1,33 @@
+package com.example.my2.security;
+
+import com.amazonaws.services.cloudtrail.model.InvalidTokenException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RequiredArgsConstructor
+@RequestMapping("/api/auth")
+@RestController
+public class AuthRestController {
+
+    private final ExternalProperties externalProperties;
+    private final AuthService authService;
+
+    @PostMapping("")
+    public ResponseEntity<Void> access(HttpServletRequest request){
+        String accessToken = null;
+        String prefix = externalProperties.getTokenPrefix();
+        String refreshToken = request.getHeader(externalProperties.getRefreshKey());
+        if(refreshToken == null || !refreshToken.startsWith(prefix)){
+            throw new InvalidTokenException("no prefix");
+        }
+        refreshToken = refreshToken.substring(prefix.length());
+        accessToken = authService.issueAccessToken(refreshToken);
+        return ResponseEntity.status(HttpStatus.OK).header(externalProperties.getAccessKey(), prefix + accessToken).build();
+    }
+
+}
