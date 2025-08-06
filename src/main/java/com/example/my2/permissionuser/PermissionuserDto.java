@@ -1,29 +1,16 @@
-package com.example.my2.permission;
+package com.example.my2.permissionuser;
 
+import com.example.my2.permission.Permission;
 import com.example.my2.permissiondetail.Permissiondetail;
 import com.example.my2.permissiondetail.PermissiondetailDto;
+import com.example.my2.user.User;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class PermissionDto {
-
-    public static String[][] targets = {
-            {"permission","권한설정"}
-            , {"user","사용자"}
-            , {"notice", "공지사항"}
-            , {"faq", "FAQ"}
-    };
-
-    @Getter @Setter @SuperBuilder
-    @NoArgsConstructor @AllArgsConstructor
-    public static class PermittedReqDto {
-        Long userId;
-        String target;
-        Integer func;
-    }
+public class PermissionuserDto {
 
     @Setter
     @Getter
@@ -31,12 +18,15 @@ public class PermissionDto {
     @AllArgsConstructor
     @Builder
     public static class CreateReqDto {
-        private String title;
-        private String content;
+        boolean deleted;
+        Long permissionId;
+        Long userId;
+        String username;
 
-        public Permission toEntity(){
-            return Permission.of(getTitle(), getContent());
+        public Permissionuser toEntity(Permission permission, User user) {
+            return Permissionuser.of(permission, user);
         }
+
     }
 
     @Setter
@@ -55,9 +45,9 @@ public class PermissionDto {
     @Builder
     public static class UpdateReqDto {
         private Long id;
-        private Boolean deleted;
-        private String title;
-        private String content;
+        private boolean deleted;
+        private Long permissionId;
+        private Long userId;
     }
 
     @Setter
@@ -66,7 +56,7 @@ public class PermissionDto {
     @AllArgsConstructor
     @Builder
     public static class DeleteReqDto {
-        private Long id;
+        private Long permissionId;
     }
 
     @Setter
@@ -75,7 +65,7 @@ public class PermissionDto {
     @AllArgsConstructor
     @Builder
     public static class DetailReqDto {
-        private Long id;
+        private Long permissionId;
     }
 
     @Setter
@@ -84,39 +74,32 @@ public class PermissionDto {
     @AllArgsConstructor
     @Builder
     public static class DetailResDto {
-        Long id;
+        Long permissionId;
         boolean deleted;
         LocalDateTime createdAt;
         LocalDateTime modifiedAt;
 
-        String title;
-        String content;
+        Long userId;
 
-        String[][] targets; // 타겟 이름 가져가기!
-        List<PermissiondetailDto.DetailResDto> details; // 이 권한이 가진 모든 디테일 가져가기!
+        String userUsername;
 
-        public static PermissionDto.DetailResDto from(Permission p) {
+        public static PermissionuserDto.DetailResDto from(Permissionuser p) {
             return DetailResDto.builder()
-                    .id(p.getId())
+                    .permissionId(p.getId())
                     .deleted(p.isDeleted())
-                    .title(p.getTitle())
-                    .content(p.getContent())
+                    .permissionId(p.getPermission().getId())
+                    .userId(p.getUser().getId())
                     .build();
         }
     }
+
     @Setter
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class ListReqDto {
-        Long id;
+        Long permissionId;
         boolean deleted;
-        LocalDateTime createdAt;
-        LocalDateTime modifiedAt;
-        String title;
-        String content;
-        String sdate;
-        String fdate;
     }
 }

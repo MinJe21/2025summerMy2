@@ -1,8 +1,7 @@
-package com.example.my2.permission;
+package com.example.my2.permissiondetail;
 
-import com.example.my2.permissiondetail.Permissiondetail;
-import com.example.my2.permissionuser.Permissionuser;
-import com.example.my2.user.UserDto;
+import com.example.my2.permission.Permission;
+import com.example.my2.permission.PermissionDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -10,14 +9,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Permission {
+public class Permissiondetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -37,26 +36,23 @@ public class Permission {
         this.deleted = false;
     }
 
-    private String title;
-    private String content;
+    String target; // 어떤 테이블에 해당하는지! user notice
+    Integer func; // 어떤 기능을 할지 create 110 read 200 update 120
 
-    @OneToMany(mappedBy = "permission")
-    private List<Permissiondetail> permissiondetails;
+    @ManyToOne
+    @JoinColumn(name = "permission_id")
+    private Permission permission;
 
-    @OneToMany(mappedBy = "permission")
-    private List<Permissionuser> permissionusers;
-
-    public static Permission of(String title, String content) {
-        return Permission.builder()
+    public static Permissiondetail of(Long permissionId, String target, Integer func) {
+        return Permissiondetail.builder()
                 .deleted(false)
-                .title(title)
-                .content(content)
+                .permission(Permission.builder().id(permissionId).build())
+                .target(target)
+                .func(func)
                 .build();
     }
 
-    public PermissionDto.CreateResDto createResDto(){
-        return PermissionDto.CreateResDto.builder()
-                .id(getId())
-                .build();
+    public PermissiondetailDto.CreateResDto toCreateResDto() {
+        return PermissiondetailDto.CreateResDto.builder().id(getId()).build();
     }
 }
