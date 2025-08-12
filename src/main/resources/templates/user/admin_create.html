@@ -34,72 +34,88 @@
 
                         <label class="col-sm-2 col-form-label">*아이디</label>
                         <div class="col-sm-4">
-                            <input type="text" class="input_param input_required form-control mb-2" id="create_user_username" name="username" placeholder="아이디를 입력해주세요!" />
+                            <input type="text" class="form-control mb-2" id="create_user_username" placeholder="아이디를 입력해주세요!" />
                         </div>
+
                         <label class="col-sm-2 col-form-label">*비밀번호</label>
                         <div class="col-sm-4">
-                            <input type="password" class="input_param input_required form-control mb-2" id="create_user_password" name="password" placeholder="비밀번호를 입력해주세요!" />
+                            <input type="password" class="form-control mb-2" id="create_user_password" placeholder="비밀번호를 입력해주세요!" />
                         </div>
-                        <!--<label class="col-sm-6"></label>-->
+
                         <label class="col-sm-2 col-form-label">*이름</label>
                         <div class="col-sm-4">
-                            <input type="text" class="input_param input_required form-control mb-2" id="create_user_name" name="name" placeholder="아이디를 입력해주세요!" />
+                            <input type="text" class="form-control mb-2" id="create_user_name" placeholder="이름을 입력해주세요!" />
                         </div>
+
                         <label class="col-sm-2 col-form-label">*닉네임</label>
                         <div class="col-sm-4">
-                            <input type="text" class="input_param input_required form-control mb-2" id="create_user_nick" name="nick" placeholder="아이디를 입력해주세요!" />
+                            <input type="text" class="form-control mb-2" id="create_user_nick" placeholder="닉네임을 입력해주세요!" />
                         </div>
+
                         <label class="col-sm-2 col-form-label">*전화번호</label>
                         <div class="col-sm-4">
-                            <input type="text" class="input_param input_required form-control mb-2" id="create_user_phone" name="phone" placeholder="아이디를 입력해주세요!" />
+                            <input type="text" class="form-control mb-2" id="create_user_phone" placeholder="전화번호를 입력해주세요!" />
                         </div>
-                        <label class="col-sm-6"></label>
-
-                        <!--<label class="col-sm-2 col-form-label">내용</label>
-                        <div class="col-sm-10">
-                            <textarea class="input_param form-control mb-2" id="create_user_content" name="content" placeholder="비밀번호를 입력해주세요!" ></textarea>
-                        </div>-->
                     </div>
                 </div>
+
                 <button class="btn btn-primary" onclick="create_user(); return false;">생성하기</button>
             </div>
-            <!-- /.container-fluid -->
 
         </div>
-        <!-- End of Main Content -->
 
         <th:block th:replace="~{/includes/admin/footer}" />
 
     </div>
-    <!-- End of Content Wrapper -->
 
 </div>
-<!-- End of Page Wrapper -->
 
 <th:block th:replace="~{/includes/admin/bottom}" />
 
 <script>
-    $( document ).ready(function() {
-        console.log( "ready!" );
+    $(document).ready(function() {
+        console.log("ready!");
     });
+
+    // ✅ 필수 값 체크 + param 생성
+    function listenerCreateParam() {
+        let username = $("#create_user_username").val().trim();
+        let password = $("#create_user_password").val().trim();
+        let name     = $("#create_user_name").val().trim();
+        let nick     = $("#create_user_nick").val().trim();
+        let phone    = $("#create_user_phone").val().trim();
+
+        if (!username) return alert("아이디를 입력해주세요.");
+        if (!password) return alert("비밀번호를 입력해주세요.");
+        if (!name)     return alert("이름을 입력해주세요.");
+        if (!nick)     return alert("닉네임을 입력해주세요.");
+        if (!phone)    return alert("전화번호를 입력해주세요.");
+
+        return { username, password, name, nick, phone };
+    }
+
+    // ✅ 생성 요청
     function create_user(){
         let _param = listenerCreateParam();
-        let _data = {};
-        _data.url = "/api/user";
-        _data.type = "POST";
-        _data.param = _param;
-        _data.success = function(obj_data, obj_status, obj_xhr){
-            alert("등록 성공");
-            location.reload();
-        }
-        _data.error = function(obj_data, obj_status, obj_xhr){
-            alert("정상적으로 이루어지지 않았습니다. 다시 시도해주세요.");
-        }
+        let _data = {
+            url: "/api/user",
+            type: "POST",
+            param: _param,
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token") // 로그인 후 저장한 토큰
+            },
+            success: function(obj_data, obj_status, obj_xhr){
+                alert("등록 성공");
+                location.reload();
+            },
+            error: function(obj_data, obj_status, obj_xhr){
+                alert("정상적으로 이루어지지 않았습니다. 다시 시도해주세요.");
+            }
+        };
         func_ajax(_data);
     }
+
 </script>
 
-
 </body>
-
 </html>

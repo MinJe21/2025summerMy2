@@ -51,4 +51,21 @@ public class PermissionController {
         Long reqUserId = getReqUserId(principalDetails);
         return ResponseEntity.ok(permissionService.detail(params, reqUserId));
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/pagedList")
+    public ResponseEntity<PermissionDto.PagedListResDto> pagedList(PermissionDto.PagedListReqDto param,
+                                                                  @AuthenticationPrincipal PrincipalDetails principalDetails){
+        Long reqUserId = getReqUserId(principalDetails);
+        return ResponseEntity.ok(permissionService.pagedList(param, reqUserId));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/list")
+    public void deleteList(@RequestBody PermissionDto.DeleteListReqDto param,
+                       @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long reqUserId = getReqUserId(principalDetails);
+        permissionService.deleteList(param, reqUserId);
+    }
+
 }

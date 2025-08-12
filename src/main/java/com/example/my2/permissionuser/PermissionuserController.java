@@ -1,13 +1,14 @@
 package com.example.my2.permissionuser;
 
-import com.example.my2.permission.PermissionDto;
-import com.example.my2.permission.PermissionService;
 import com.example.my2.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/api/permissionuser")
 @RestController
@@ -47,10 +48,27 @@ public class PermissionuserController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @GetMapping("/list")
+    public List<PermissionuserDto.DetailResDto> list(PermissionuserDto.ListReqDto param,
+                                                     @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Long reqUserId = getReqUserId(principalDetails);
+        return permissionuserService.list(param, reqUserId);
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("")
     public ResponseEntity<PermissionuserDto.DetailResDto> detail(PermissionuserDto.DetailReqDto params,
                                                              @AuthenticationPrincipal PrincipalDetails principalDetails){
         Long reqUserId = getReqUserId(principalDetails);
         return ResponseEntity.ok(permissionuserService.detail(params, reqUserId));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/list")
+    public ResponseEntity<Void> deleteList(@RequestBody PermissionuserDto.DeleteListReqDto params,
+                                           @AuthenticationPrincipal PrincipalDetails principalDetails){
+        Long reqUserId = getReqUserId(principalDetails);
+        permissionuserService.deleteList(params, reqUserId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

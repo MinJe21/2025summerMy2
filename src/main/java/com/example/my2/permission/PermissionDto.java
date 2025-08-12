@@ -34,8 +34,9 @@ public class PermissionDto {
         private String title;
         private String content;
 
+
         public Permission toEntity(){
-            return Permission.of(getTitle(), getContent());
+            return Permission.of(getTitle(),getContent());
         }
     }
 
@@ -55,7 +56,7 @@ public class PermissionDto {
     @Builder
     public static class UpdateReqDto {
         private Long id;
-        private Boolean deleted;
+        private boolean deleted;
         private String title;
         private String content;
     }
@@ -68,6 +69,16 @@ public class PermissionDto {
     public static class DeleteReqDto {
         private Long id;
     }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DeleteListReqDto {
+        private List<Long> ids;
+    }
+
 
     @Setter
     @Getter
@@ -99,6 +110,8 @@ public class PermissionDto {
             return DetailResDto.builder()
                     .id(p.getId())
                     .deleted(p.isDeleted())
+                    .createdAt(p.getCreatedAt())
+                    .modifiedAt(p.getModifiedAt())
                     .title(p.getTitle())
                     .content(p.getContent())
                     .build();
@@ -118,5 +131,83 @@ public class PermissionDto {
         String content;
         String sdate;
         String fdate;
+    }
+
+    @Getter @Setter @SuperBuilder @NoArgsConstructor @AllArgsConstructor
+    public static class PagedListReqDto {
+        Boolean deleted;
+        LocalDateTime sdate;
+        LocalDateTime fdate;
+
+        Integer offset;
+        Integer callpage;
+        Integer perpage;
+        String orderway;
+        String orderby;
+
+        String title;
+
+        public PermissionDto.PagedListResDto init(int listsize){
+            Integer perpage = getPerpage(); //한번에 볼 글 갯수
+            if(perpage == null || perpage < 1){
+                perpage = 10;
+            }
+            if(perpage > 100){
+                perpage = 100;
+            }
+            setPerpage(perpage);
+
+            int totalpage = listsize / perpage; // 101 / 10 = >10 ?? 11이 되어야 하는데?
+            if(listsize % perpage > 0){
+                totalpage++;
+            }
+
+            Integer callpage = getCallpage();
+            if(callpage == null || callpage < 1){
+                //페이지 수가 없거나, 1보다 작은 페이수를 호출할 때
+                callpage = 1;
+            }
+            if(callpage > totalpage){
+                //전체 페이지보다 더 다음 페이지를 호출할때!
+                callpage = totalpage;
+            }
+            if(callpage < 1){
+                callpage = 1;
+            }
+            setCallpage(callpage);
+
+            String orderby = getOrderby();
+            if(orderby == null || orderby.isEmpty()){
+                orderby = "id";
+            }
+            setOrderby(orderby);
+
+            String orderway = getOrderway();
+            if(orderway == null || orderway.isEmpty()){
+                orderway = "DESC";
+            }
+            setOrderway(orderway);
+
+            int offset = (callpage - 1) * perpage;
+            System.out.println("offset : " + offset);
+            setOffset(offset);
+
+            return PermissionDto.PagedListResDto.builder()
+                    .totalpage(totalpage)
+                    .callpage(getCallpage())
+                    .perpage(getPerpage())
+                    .listsize(listsize)
+                    .build();
+        }
+    }
+
+    @Getter @Setter @SuperBuilder
+    @NoArgsConstructor @AllArgsConstructor
+    public static class PagedListResDto {
+        Integer listsize;
+        Integer totalpage;
+        Integer callpage;
+        Integer perpage;
+        Object list;
     }
 }

@@ -93,6 +93,8 @@ public class PermissiondetailDto {
             return DetailResDto.builder()
                     .permissionId(p.getId())
                     .deleted(p.isDeleted())
+                    .createdAt(p.getCreatedAt())
+                    .modifiedAt(p.getModifiedAt())
                     .target(p.getTarget())
                     .func(p.getFunc())
                     .build();

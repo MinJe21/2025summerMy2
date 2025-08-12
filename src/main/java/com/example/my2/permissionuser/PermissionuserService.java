@@ -29,31 +29,53 @@ public class PermissionuserService {
 
 
     public PermissionuserDto.CreateResDto create(PermissionuserDto.CreateReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, target, 110);
-
-        User u = userRepository.findByUsername(param.getUsername());
-        if(u == null) {
-            u = userRepository.findById(Long.parseLong(param.getUsername())).orElse(null);
+        // 1. username으로 User 조회
+        User user = null;
+        System.out.println("1");
+        if (param.getUsername() != null) {
+            user = userRepository.findByUsername(param.getUsername());
+            if (user == null) {
+                try {
+                    Long id = Long.parseLong(param.getUsername());
+                    user = userRepository.findById(id).orElse(null);
+                } catch (NumberFormatException ignore) {}
+            }
         }
-        if(u == null) {
-            throw new RuntimeException("User not found");
-        }
-        param.setUsername(u.getUsername());
+        System.out.println("2");
 
-        Permissionuser permissionuser = permissionuserRepository.findByPermissionIdAndUserId(param.getPermissionId(), param.getUserId());
-        Permission permission = permissionRepository.findById(param.getPermissionId()).orElseThrow();
-        User user = userRepository.findById(param.getUserId()).orElseThrow();
-        if(permissionuser == null) {
-            permissionuser = param.toEntity(permission, user);
-        } else{
+        if (user == null && param.getUserId() != null) {
+            user = userRepository.findById(param.getUserId()).orElse(null);
+        }
+        System.out.println("3");
+
+        if (user == null) {
+            throw new RuntimeException("해당 유저를 찾을 수 없습니다");
+        }
+        System.out.println("4");
+
+        // 2. permissionId로 Permission 조회
+        Permission permission = permissionRepository.findById(param.getPermissionId())
+                .orElseThrow(() -> new RuntimeException("Permission not found"));
+
+        // 3. 기존 Permissionuser 중복 여부 확인
+        Permissionuser permissionuser = permissionuserRepository
+                .findByPermissionIdAndUserId(param.getPermissionId(), user.getId());
+
+        if (permissionuser == null) {
+            // 새로 생성
+            permissionuser = Permissionuser.of(permission, user);
+        } else {
+            // 이미 있으면 삭제 처리 (또는 복원 로직 필요 시 추가)
             permissionuser.setDeleted(true);
         }
 
+        // 4. 저장 및 응답 DTO 변환
         return permissionuserRepository.save(permissionuser).toCreateResDto();
     }
 
+
     public void update(PermissionuserDto.UpdateReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, target, 120);
+        //permittedService.isPermitted(reqUserId, target, 120);
         Permissionuser permissionuser = permissionuserRepository.findById(param.getPermissionId()).orElse(null);
         if(permissionuser == null){
             throw new RuntimeException("no data");
@@ -75,7 +97,7 @@ public class PermissionuserService {
 
 
     public PermissionuserDto.DetailResDto get(PermissionuserDto.DetailReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, target, 200);
+        //permittedService.isPermitted(reqUserId, target, 200);
         Permissionuser p = permissionuserRepository.findByIdAndDeletedFalse(param.getPermissionId())
                 .orElseThrow(() -> new RuntimeException("PermissionDetail not found"));
         return PermissionuserDto.DetailResDto.from(p);
@@ -86,13 +108,11 @@ public class PermissionuserService {
     }
 
     public List<PermissionuserDto.DetailResDto> list(PermissionuserDto.ListReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, "permission", 200);
-
+        //permittedService.isPermitted(reqUserId, "permission", 200);
         List<Permissionuser> list = permissionuserRepository.findAllByPermissionIdAndDeletedFalse(param.getPermissionId());
-
         return list.stream()
                 .map(PermissionuserDto.DetailResDto::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<PermissionuserDto.DetailResDto> detailList(List<PermissionuserDto.DetailResDto> list, Long reqUserId){
@@ -101,5 +121,11 @@ public class PermissionuserService {
             newList.add(get(PermissionuserDto.DetailReqDto.builder().permissionId(each.getPermissionId()).build(), reqUserId));
         }
         return newList;
+    }
+
+    public void deleteList(PermissionuserDto.DeleteListReqDto param, Long reqUserId) {
+        for(Long id : param.getIds()){
+            delete(PermissionuserDto.DeleteReqDto.builder().id(id).build(), reqUserId);
+        }
     }
 }

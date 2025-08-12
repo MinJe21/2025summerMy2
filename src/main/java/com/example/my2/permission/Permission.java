@@ -2,11 +2,11 @@ package com.example.my2.permission;
 
 import com.example.my2.permissiondetail.Permissiondetail;
 import com.example.my2.permissionuser.Permissionuser;
-import com.example.my2.user.UserDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -17,11 +17,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Setter(AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
     boolean deleted;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

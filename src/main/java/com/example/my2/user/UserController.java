@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("api/user")
 @RestController
@@ -23,6 +20,7 @@ public class UserController {
         return principalDetails.getUser().getId();
     }
 
+    @PreAuthorize("permitAll()")
     @PostMapping("/signup")
     public ResponseEntity<UserDto.CreateResDto> signup(@RequestBody UserDto.CreateReqDto param){
         return ResponseEntity.ok(userService.signup(param, null));
@@ -33,5 +31,13 @@ public class UserController {
     public ResponseEntity<UserDto.CreateResDto> create(@RequestBody UserDto.CreateReqDto params, @AuthenticationPrincipal PrincipalDetails principalDetails){
         Long reqUserId = getReqUserId(principalDetails);
         return ResponseEntity.ok(userService.create(params, reqUserId));
+    }
+
+    @PreAuthorize(("hasRole('USER')"))
+    @GetMapping("/pagedList")
+    public ResponseEntity<UserDto.PagedListResDto> pagedList(UserDto.PagedListReqDto param,
+                                                             @AuthenticationPrincipal PrincipalDetails principalDetails){
+        Long reqUserId = getReqUserId(principalDetails);
+        return ResponseEntity.ok(userService.pagedList(param, reqUserId));
     }
 }

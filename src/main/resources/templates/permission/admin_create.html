@@ -62,28 +62,37 @@
 
 <th:block th:replace="~{/includes/admin/bottom}" />
 
+<!-- ✅ JS 스크립트 정의 -->
 <script>
-    $( document ).ready(function() {
-        console.log( "ready!" );
+    $(document).ready(function () {
+        console.log("ready!");
     });
-    function create_permission(){
+
+    // ✅ 누락되어 있던 함수 정의
+    function listenerCreateParam() {
+        return {
+            title: $("#create_permission_title").val(),
+            content: $("#create_permission_content").val()
+        };
+    }
+
+    function create_permission() {
         let _param = listenerCreateParam();
-        let _data = {};
-        _data.url = "/api/permission";
-        _data.type = "POST";
-        _data.param = _param;
-        _data.success = function(obj_data, obj_status, obj_xhr){
-            alert("등록 성공");
-            location.reload();
-        }
-        _data.error = function(obj_data, obj_status, obj_xhr){
-            alert("정상적으로 이루어지지 않았습니다. 다시 시도해주세요.");
-        }
-        func_ajax(_data);
+        let _data = {
+            url: "/api/permission",
+            type: "POST",
+            param: _param,
+            success: function (obj_data, obj_status, obj_xhr) {
+                alert("등록 성공");
+                location.reload();
+            },
+            error: function (obj_data, obj_status, obj_xhr) {
+                alert("정상적으로 이루어지지 않았습니다. 다시 시도해주세요.");
+            }
+        };
+        func_ajax(_data); // 🔸 이 함수가 정의된 외부 JS도 필요
     }
 </script>
 
-
 </body>
-
 </html>

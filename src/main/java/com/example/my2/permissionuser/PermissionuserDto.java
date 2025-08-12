@@ -18,16 +18,15 @@ public class PermissionuserDto {
     @AllArgsConstructor
     @Builder
     public static class CreateReqDto {
-        boolean deleted;
-        Long permissionId;
-        Long userId;
-        String username;
+        private Long permissionId;
+        private Long userId;
+        private String username;
 
         public Permissionuser toEntity(Permission permission, User user) {
             return Permissionuser.of(permission, user);
         }
-
     }
+
 
     @Setter
     @Getter
@@ -56,6 +55,7 @@ public class PermissionuserDto {
     @AllArgsConstructor
     @Builder
     public static class DeleteReqDto {
+        private Long id;
         private Long permissionId;
     }
 
@@ -85,10 +85,12 @@ public class PermissionuserDto {
 
         public static PermissionuserDto.DetailResDto from(Permissionuser p) {
             return DetailResDto.builder()
-                    .permissionId(p.getId())
-                    .deleted(p.isDeleted())
                     .permissionId(p.getPermission().getId())
+                    .deleted(p.isDeleted())
+                    .createdAt(p.getCreatedAt())
+                    .modifiedAt(p.getModifiedAt())
                     .userId(p.getUser().getId())
+                    .userUsername(p.getUser().getUsername())
                     .build();
         }
     }
@@ -101,5 +103,14 @@ public class PermissionuserDto {
     public static class ListReqDto {
         Long permissionId;
         boolean deleted;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteListReqDto {
+        List<Long> ids;
     }
 }

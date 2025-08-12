@@ -29,7 +29,7 @@ public class PermissiondetailService {
                         .build(), reqUserId);
             }
         } else {
-            permittedService.isPermitted(reqUserId, target, 120);
+            //permittedService.isPermitted(reqUserId, target, 120);
             //있는데 바꿔주기!
             permissiondetail.setDeleted(!param.getAlive());
             return permissiondetailRepository.save(permissiondetail).toCreateResDto();
@@ -44,7 +44,7 @@ public class PermissiondetailService {
     }
 
     public void update(PermissiondetailDto.UpdateReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, target, 120);
+        //permittedService.isPermitted(reqUserId, target, 120);
         Permissiondetail permissiondetail = permissiondetailRepository.findById(param.getPermissionId()).orElse(null);
         if(permissiondetail == null){
             throw new RuntimeException("no data");
@@ -67,7 +67,7 @@ public class PermissiondetailService {
 
 
     public PermissiondetailDto.DetailResDto get(PermissiondetailDto.DetailReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, target, 200);
+        //permittedService.isPermitted(reqUserId, target, 200);
         Permissiondetail p = permissiondetailRepository.findByIdAndDeletedFalse(param.getPermissionId())
                 .orElseThrow(() -> new RuntimeException("PermissionDetail not found"));
         return PermissiondetailDto.DetailResDto.from(p);
@@ -78,7 +78,7 @@ public class PermissiondetailService {
     }
 
     public List<PermissiondetailDto.DetailResDto> list(PermissiondetailDto.ListReqDto param, Long reqUserId) {
-        permittedService.isPermitted(reqUserId, "permission", 200);
+        //permittedService.isPermitted(reqUserId, "permission", 200);
 
         List<Permissiondetail> list = permissiondetailRepository.findAllByPermissionIdAndDeletedFalse(param.getPermissionId());
 
