@@ -1,6 +1,7 @@
 package com.example.my2.user;
 
 
+import com.example.my2.permitted.PermittedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PermittedService permittedService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserDto.CreateResDto signup(@RequestBody UserDto.CreateReqDto param, Long userId){
@@ -28,6 +30,11 @@ public class UserService {
         param.setPassword(bCryptPasswordEncoder.encode(param.getPassword()));
         User newUser = userRepository.save(param.toEntity());
         return newUser.createResDto();
+    }
+
+    public UserDto.DetailResDto get(UserDto.DetailReqDto param, Long userId){
+        User u = userRepository.findById(param.getId()).orElseThrow(() -> new RuntimeException("user not found"));
+        return UserDto.DetailResDto.from(u);
     }
 
     public UserDto.PagedListResDto pagedList(UserDto.PagedListReqDto param, Long userId){
@@ -63,5 +70,28 @@ public class UserService {
         );
 
         return res;
+    }
+
+    public void update(UserDto.UpdateReqDto param, Long reqUserId) {
+        //permittedService.isPermitted(reqUserId, target, 120);
+        User u = userRepository.findById(param.getId()).orElse(null);
+        if(u == null){
+            throw new RuntimeException("no data");
+        }
+        if(param.isDeleted()){ u.setDeleted(param.isDeleted()); }
+        if(param.getName() != null){ param.setName(param.getName()); }
+        if(param.getNickname() != null){ param.setNickname(param.getNickname()); }
+        if(param.getPhone() != null){ param.setPhone(param.getPhone()); }
+        userRepository.save(u);
+    }
+
+    public void delete(UserDto.DeleteReqDto param, Long userId){
+        update(UserDto.UpdateReqDto.builder().id(param.getId()).deleted(true).build(), userId);
+    }
+
+    public void deleteList(UserDto.DeleteListReqDto param, Long reqUserId) {
+        for(Long id : param.getIds()){
+            delete(UserDto.DeleteReqDto.builder().id(id).build(), reqUserId);
+        }
     }
 }

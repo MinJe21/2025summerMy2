@@ -86,6 +86,15 @@ public class UserDto {
         }
     }
 
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DetailReqDto {
+        private Long id;
+    }
+
     @Getter
     @Setter
     @SuperBuilder
@@ -153,4 +162,52 @@ public class UserDto {
         Integer perpage;
         Object list;
     }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UpdateReqDto {
+        private Long id;
+        private boolean deleted;
+        private String username;
+        private String name;
+        private String nickname;
+        private String phone;
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UpdateResDto {
+        private Long id;
+        private boolean deleted;
+        private String username;
+        private String name;
+        private String nickname;
+        private String phone;
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DeleteReqDto {
+        private Long id;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeleteListReqDto {
+        List<Long> ids;
+    }
+
+
 }
